@@ -518,6 +518,11 @@ const SEED = {
 };
 
 async function seedIfEmpty() {
+  // Never auto-plant demo accounts (with known dev passwords) on production —
+  // an empty vtms-vcrop-prod database should stay empty until a real vCrop
+  // Admin account is created deliberately (see the one-time bootstrap script),
+  // not silently filled with test logins the moment the page first loads.
+  if (IS_PROD) return;
   const snap = await getDocs(collection(db, 'users'));
   if (!snap.empty) return;
   showToast('Setting up demo data…');
