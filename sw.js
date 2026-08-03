@@ -5,7 +5,7 @@
 // TOGETHER with index.html every time either one changes; if only index.html is
 // updated and this file is left as-is, the browser has no way to detect that
 // anything changed at all, and users will keep silently getting the old version.
-const CACHE = 'vtms-prod-2026-08-01T15-30-00';
+const CACHE = 'vtms-prod-2026-08-03T12-00-00';
 const SKIP_URLS = ['firestore', 'firebase', 'googleapis', 'gstatic'];
 
 self.addEventListener('install', e => {
