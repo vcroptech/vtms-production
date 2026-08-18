@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mark Attendance — Interactive Guide</title>
+<style>
+  :root{
+    --navy:#1E293B; --blue:#1E40AF; --blue-light:#EFF6FF; --blue-border:#BFDBFE;
+    --green:#166534; --green-light:#F0FDF4; --green-border:#BBF7D0;
+    --amber:#92400E; --amber-light:#FEF3C7; --amber-border:#FDE68A;
+    --red:#DC2626; --red-light:#FEF2F2; --red-border:#FECACA;
+    --gray:#64748B; --gray-light:#F8FAFC; --border:#E2E8F0; --text:#1E293B;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:#fff;margin:0;padding:24px;max-width:760px}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:var(--gray);font-size:13px;margin:0 0 20px}
+  .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+  .step-label{font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .fg{margin-bottom:10px;position:relative}
+  label{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#475569;margin-bottom:4px}
+  .info{width:15px;height:15px;border-radius:50%;background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-border);font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+  select,input{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;color:var(--text)}
+  .tip{display:none;position:absolute;z-index:5;top:100%;left:0;right:0;margin-top:4px;background:var(--navy);color:#fff;font-size:12px;line-height:1.5;padding:10px 12px;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+  .tip b{display:block;margin-bottom:3px;color:#93C5FD}
+  .fg.open .tip{display:block}
+  .banner{border-radius:8px;padding:10px 12px;font-size:12px;margin-top:10px;display:flex;gap:8px;align-items:flex-start}
+  .banner.red{background:var(--red-light);border:1px solid var(--red-border);color:var(--red)}
+  .banner.green{background:var(--green-light);border:1px solid var(--green-border);color:var(--green)}
+  .banner.amber{background:var(--amber-light);border:1px solid var(--amber-border);color:var(--amber)}
+  .banner.blue{background:var(--blue-light);border:1px solid var(--blue-border);color:var(--blue)}
+  #rows{transition:opacity .15s}
+  .rowbox{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fff}
+  .row-title{font-size:12px;font-weight:600;color:#475569;margin-bottom:10px}
+  .live{margin-top:14px}
+  .hint{font-size:10.5px;color:var(--gray);margin-top:3px}
+  .scn{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+  .scn th{background:var(--navy);color:#fff;text-align:left;padding:8px 10px}
+  .scn td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  .scn tr:nth-child(even) td{background:var(--gray-light)}
+  details summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--blue);padding:4px 0}
+</style>
+</head>
+<body>
+
+<h1>Mark Attendance — interactive field guide</h1>
+<p class="sub">Click the <span class="info" style="cursor:default">i</span> next to any field to see what it means. Change Day status / Class status below to see exactly what happens for each choice — same logic as the real VTMS form.</p>
+
+<div class="card">
+  <div class="step-label">Step 1 — Date, School &amp; Day status</div>
+  <div class="grid2">
+    <div class="fg" id="fg-school">
+      <label>School * <span class="info" onclick="toggleTip('fg-school')">i</span></label>
+      <select disabled><option>Satya Bharti School - Dasania</option></select>
+      <div class="tip"><b>Purpose</b>Which school this record is for. <b style="margin-top:6px">Notes</b>Only schools you're currently, actively allocated to appear here.</div>
+    </div>
+    <div class="fg" id="fg-date">
+      <label>Date * <span class="info" onclick="toggleTip('fg-date')">i</span></label>
+      <input type="date" disabled>
+      <div class="tip"><b>Purpose</b>The date these classes actually happened. <b style="margin-top:6px">Notes</b>Cannot be a future date — only today or earlier.</div>
+    </div>
+    <div class="fg" id="fg-assigned">
+      <label>Classes assigned * <span class="info" onclick="toggleTip('fg-assigned')">i</span></label>
+      <input value="6" disabled>
+      <div class="tip"><b>Purpose</b>How many classes you're scheduled to teach at this school each day. <b style="margin-top:6px">Notes</b>Auto-fills from your allocation once you pick a school.</div>
+    </div>
+    <div class="fg" id="fg-conducted">
+      <label>Classes conducted * <span class="info" onclick="toggleTip('fg-conducted')">i</span></label>
+      <input value="5" disabled>
+      <div class="tip"><b>Purpose</b>How many of those you actually taught today. <b style="margin-top:6px">Notes</b>Can never be greater than Classes assigned.</div>
+    </div>
+  </div>
+  <div class="fg" id="fg-daystatus" style="margin-top:2px">
+    <label>Day status * <span class="info" onclick="toggleTip('fg-daystatus')">i</span></label>
+    <select id="dayStatus" onchange="onDayChange()">
+      <option value="Working">Working</option>
+      <option value="School Holiday">School Holiday</option>
+      <option value="On Leave">On Leave</option>
+      <option value="All Classes Cancelled">All Classes Cancelled</option>
+    </select>
+    <div class="tip"><b>Purpose</b>What kind of day this was, overall — this controls everything else on the form. <b style="margin-top:6px">Notes</b>Pick anything other than Working and Step 2's class rows disappear, because nothing was actually taught.</div>
+  </div>
+  <div id="dayBanner"></div>
+</div>
+
+<div id="rows">
+  <div class="step-label">Step 2 — Classes</div>
+  <div class="rowbox">
+    <div class="row-title">Class 1</div>
+    <div class="grid2">
+      <div class="fg" id="fg-cls"><label>Class * <span class="info" onclick="toggleTip('fg-cls')">i</span></label><select disabled><option>8</option></select>
+        <div class="tip"><b>Purpose</b>Which class (grade) you taught. <b style="margin-top:6px">Notes</b>Populated from your allocation at this school.</div></div>
+      <div class="fg" id="fg-sec"><label>Section * <span class="info" onclick="toggleTip('fg-sec')">i</span></label><select disabled><option>A</option></select>
+        <div class="tip"><b>Purpose</b>Which section of that class. <b style="margin-top:6px">Notes</b>Populated once Class is selected.</div></div>
+      <div class="fg" id="fg-subj"><label>Subject * <span class="info" onclick="toggleTip('fg-subj')">i</span></label><input value="English" disabled>
+        <div class="tip"><b>Purpose</b>The subject you taught. <b style="margin-top:6px">Notes</b>Usually auto-fills (badge "From allocation" or "From requirement"). Manual dropdown only appears if neither is set.</div></div>
+      <div class="fg" id="fg-clsstatus">
+        <label>Class status * <span class="info" onclick="toggleTip('fg-clsstatus')">i</span></label>
+        <select id="clsStatus" onchange="onClsChange()">
+          <option value="Conducted">Conducted</option>
+          <option value="Cancelled">Cancelled from School End</option>
+          <option value="Not Conducted">Not Conducted from Teacher End</option>
+        </select>
+        <div class="tip"><b>Purpose</b>What actually happened with this specific class — the most important choice on the row. <b style="margin-top:6px">Notes</b>Sometimes auto-locked if your Head Teacher already logged a formal cancellation for this exact class.</div>
+      </div>
+    </div>
+    <div class="fg" id="fg-dur"><label>Duration per class * <span class="info" onclick="toggleTip('fg-dur')">i</span></label><input id="durVal" value="45 min" disabled>
+      <div class="tip"><b>Purpose</b>How many minutes this class ran for. <b style="margin-top:6px">Notes</b>Auto-locked to 0 whenever Class status is Cancelled or Not Conducted.</div></div>
+    <div class="fg" id="fg-topics"><label>Topics taught / Remark * <span class="info" onclick="toggleTip('fg-topics')">i</span></label><input value="" placeholder="Always required — describe what you taught, or why the class didn't happen" disabled>
+      <div class="tip"><b>Purpose</b>What you covered, or why the class didn't happen. <b style="margin-top:6px">Notes</b>Required for every status, no exceptions.</div></div>
+    <div id="clsLive" class="live"></div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <details>
+    <summary>Full scenario quick-reference table</summary>
+    <table class="scn">
+      <tr><th>Your situation</th><th>Day status</th><th>Class status</th><th>What happens</th></tr>
+      <tr><td>Normal day, everything happened as planned</td><td>Working</td><td>Conducted</td><td>Real duration + topics. Goes to Head Teacher for approval.</td></tr>
+      <tr><td>School cancelled one class, no formal record raised by HT</td><td>Working</td><td>Cancelled from School End</td><td>Duration locks to 0. <b>Pending Head Teacher approval.</b> Billable if no formal notice, or notice &lt;24h.</td></tr>
+      <tr><td>You personally couldn't take one class</td><td>Working</td><td>Not Conducted from Teacher End</td><td>Duration locks to 0. Auto-approved. Never billable, ever.</td></tr>
+      <tr><td>HT already raised a formal cancellation for this exact class</td><td>Working</td><td>Locked to Cancelled automatically</td><td>Row is locked with a red explanation note. <b>Auto-approved</b> — the HT already made this call.</td></tr>
+      <tr><td>HT already raised a formal cancellation for the whole day/range</td><td>Locked to All Classes Cancelled</td><td>n/a</td><td>Banner explains it. No rows needed. <b>Auto-approved</b> — the HT already made this call.</td></tr>
+      <tr><td>Whole school closed for a holiday</td><td>School Holiday</td><td>n/a</td><td>No rows needed. Auto-approved. Never billable.</td></tr>
+      <tr><td>You were personally on leave</td><td>On Leave</td><td>n/a</td><td>No rows needed. Auto-approved. HT/Org/vCrop notified.</td></tr>
+      <tr><td>Every class cancelled by the school, no formal record raised by HT</td><td>All Classes Cancelled</td><td>n/a</td><td>No rows needed. <b>Pending Head Teacher approval.</b> HT/Org/vCrop notified.</td></tr>
+    </table>
+  </details>
+</div>
+
+<script>
+function toggleTip(id){
+  document.querySelectorAll('.fg.open').forEach(f=>{ if(f.id!==id) f.classList.remove('open'); });
+  document.getElementById(id).classList.toggle('open');
+}
+document.addEventListener('click', function(e){
+  if(!e.target.classList.contains('info')){
+    document.querySelectorAll('.fg.open').forEach(f=>f.classList.remove('open'));
+  }
+});
+function onDayChange(){
+  const v = document.getElementById('dayStatus').value;
+  const rows = document.getElementById('rows');
+  const banner = document.getElementById('dayBanner');
+  if(v==='Working'){
+    rows.style.display='';
+    banner.innerHTML='';
+  } else {
+    rows.style.display='none';
+    let msg='';
+    if(v==='School Holiday') msg='No class rows needed. Auto-approved immediately. Never billable. Notifies vCrop Admin, Org Admin and HT.';
+    if(v==='On Leave') msg='No class rows needed. Auto-approved immediately. Never billable. Head Teacher, Org Admin and vCrop Admin are all notified.';
+    if(v==='All Classes Cancelled') msg='No class rows needed. If your Head Teacher had already raised a formal Class Cancellation for this date, this field would be locked automatically and auto-approved. Since you\'re picking it manually here, it goes to your Head Teacher for approval and shows as Pending until they act. Still billable if there was no formal record, or notice was under 24 hours. HT / Org Admin / vCrop Admin all notified.';
+    banner.innerHTML = '<div class="banner blue"><span>&#9432;</span><span>'+msg+'</span></div>';
+  }
+}
+function onClsChange(){
+  const v = document.getElementById('clsStatus').value;
+  const dur = document.getElementById('durVal');
+  const live = document.getElementById('clsLive');
+  if(v==='Conducted'){
+    dur.value='45 min';
+    live.innerHTML='<div class="banner green"><span>&#10003;</span><span>Fill in the real duration and describe what you taught. This class goes to your Head Teacher for approval — it will show as Pending until they act.</span></div>';
+  } else if(v==='Cancelled'){
+    dur.value='0 min (locked)';
+    live.innerHTML='<div class="banner amber"><span>&#9888;</span><span>Duration locks to 0. If your Head Teacher had already logged a formal cancellation for this exact class, this field would auto-lock and be auto-approved. Since you\'re picking it manually here, it goes to your Head Teacher for approval and shows as Pending until they act. Still billable to the Organization if there was no formal cancellation notice, or the notice was under 24 hours. Explain why in Topics / Remark.</span></div>';
+  } else {
+    dur.value='0 min (locked)';
+    live.innerHTML='<div class="banner red"><span>&#10005;</span><span>Duration locks to 0. Auto-approved immediately. Never billable to the Organization, under any circumstance — this is your own gap, not the school\'s. Explain why in Topics / Remark.</span></div>';
+  }
+}
+onDayChange();
+onClsChange();
+</script>
+</body>
+</html>

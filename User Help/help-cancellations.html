@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Class Cancellations — Interactive Guide</title>
+<style>
+  :root{
+    --navy:#1E293B; --blue:#1E40AF; --blue-light:#EFF6FF; --blue-border:#BFDBFE;
+    --green:#166534; --green-light:#F0FDF4; --green-border:#BBF7D0;
+    --amber:#92400E; --amber-light:#FEF3C7; --amber-border:#FDE68A;
+    --red:#DC2626; --red-light:#FEF2F2; --red-border:#FECACA;
+    --gray:#64748B; --gray-light:#F8FAFC; --border:#E2E8F0; --text:#1E293B;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:#fff;margin:0;padding:24px;max-width:860px}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:var(--gray);font-size:13px;margin:0 0 20px}
+  .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+  .step-label{font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+  .info{width:15px;height:15px;border-radius:50%;background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-border);font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+  .fg{margin-bottom:10px;position:relative}
+  label{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#475569;margin-bottom:4px}
+  select,input{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;color:var(--text)}
+  .tip{display:none;position:absolute;z-index:5;top:100%;left:0;right:0;margin-top:4px;background:var(--navy);color:#fff;font-size:12px;line-height:1.5;padding:10px 12px;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+  .tip b{display:block;margin-bottom:3px;color:#93C5FD}
+  .fg.open .tip{display:block}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .banner{border-radius:8px;padding:10px 12px;font-size:12px;margin-top:10px;display:flex;gap:8px;align-items:flex-start}
+  .banner.red{background:var(--red-light);border:1px solid var(--red-border);color:var(--red)}
+  .banner.green{background:var(--green-light);border:1px solid var(--green-border);color:var(--green)}
+  .banner.amber{background:var(--amber-light);border:1px solid var(--amber-border);color:var(--amber)}
+  .banner.blue{background:var(--blue-light);border:1px solid var(--blue-border);color:var(--blue)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .typebox{border:1px solid var(--border);border-radius:10px;padding:12px}
+  .typebox h3{margin:0 0 6px;font-size:13px}
+  .typebox.range{border-color:var(--amber-border);background:#FFFBEB}
+  .typebox.specific{border-color:var(--blue-border);background:#F8FAFF}
+  .scn{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+  .scn th{background:var(--navy);color:#fff;text-align:left;padding:8px 10px}
+  .scn td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  .scn tr:nth-child(even) td{background:var(--gray-light)}
+  details summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--blue);padding:4px 0}
+</style>
+</head>
+<body>
+
+<h1>Class Cancellations — interactive guide</h1>
+<p class="sub">Click the <span class="info" style="cursor:default">i</span> next to any field to see what it means. Use the simulator below to check advance-notice timing and edit/delete rules — same logic as the real VTMS Cancellations screen.</p>
+
+<div class="card">
+  <div class="step-label">Who can do what</div>
+  <table class="scn">
+    <tr><th>Role</th><th>Send cancellation</th><th>Edit / Delete</th><th>View</th></tr>
+    <tr><td>Head Teacher</td><td>Yes</td><td>No</td><td>Own schools</td></tr>
+    <tr><td>Org Admin</td><td>Yes</td><td>No</td><td>Own organization</td></tr>
+    <tr><td>vCrop Admin</td><td>Yes</td><td>Yes — the only role that can</td><td>Everything</td></tr>
+    <tr><td>Cluster Coordinator</td><td>No — notified only</td><td>No</td><td>None — cannot open this screen at all (redirected to Dashboard)</td></tr>
+    <tr><td>Teacher</td><td>No</td><td>No</td><td>Own records only</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <div class="step-label">Two cancellation types — which do I send?</div>
+  <div class="two">
+    <div class="typebox range">
+      <h3>📅 All Classes Cancelled — date range</h3>
+      <p style="font-size:12px;margin:0 0 6px">Use when the <b>whole school day</b> is off for one or more teachers — a holiday, an event, closure for a range of dates.</p>
+      <p style="font-size:12px;margin:0">One school, one or more teachers (checkbox list or "All teachers"), a from/to date, and a single school start time used to measure notice for every day in the range.</p>
+    </div>
+    <div class="typebox specific">
+      <h3>📌 Particular class — specific</h3>
+      <p style="font-size:12px;margin:0 0 6px">Use when only <b>one class/section</b> for <b>one teacher</b> on <b>one date</b> is cancelled — everything else that day goes ahead normally.</p>
+      <p style="font-size:12px;margin:0">One school, one teacher, subject, class, section, exact scheduled date and time.</p>
+    </div>
+  </div>
+  <div class="banner blue" style="margin-top:12px"><span>&#9432;</span><span>Only Head Teacher, Org Admin and vCrop Admin can send a cancellation. Cluster Coordinator is notified automatically whenever one is sent for their school, but the Cancellations screen itself isn't in their menu at all — they can't open it to browse the list. Teachers only ever see their own records.</span></div>
+</div>
+
+<div class="card">
+  <div class="step-label">What happens when you send one</div>
+  <p style="font-size:12px;margin:0 0 8px">The affected teacher(s), the school's Cluster Coordinator (if assigned), Org Admin and vCrop Admin are all notified immediately. On the teacher's own Mark Attendance form, if the date (and for a specific cancellation, the exact class/section) matches, Class status is <b>auto-locked to Cancelled</b> with a red explanation note — the teacher doesn't get a choice on that row, so make sure the details you enter are correct before sending.</p>
+  <div class="banner amber"><span>&#9888;</span><span><b>Overlap handling for date ranges:</b> if part of a newly requested range is already covered by an earlier cancellation for that same teacher at that school, only the genuinely new, not-yet-covered days are sent as a fresh record — the rest is silently skipped rather than duplicated. If a teacher's entire requested range turns out to already be fully covered, that teacher is skipped entirely and you'll see exactly who in the confirmation message. If <i>every</i> selected teacher is already fully covered, nothing is sent at all.</span></div>
+</div>
+
+<div class="card">
+  <div class="step-label">Simulator — advance notice timing</div>
+  <div class="grid2">
+    <div class="fg">
+      <label>Hours before the scheduled class time you notify <span class="info" onclick="toggleTip('fg-hrs')">i</span></label>
+      <input type="number" id="simHours" value="30" onchange="runSim()" oninput="runSim()">
+      <div class="tip"><b>Purpose</b>How far in advance of the scheduled class time this notification is sent. <b style="margin-top:6px">Notes</b>Use a negative number to simulate notifying <i>after</i> the scheduled time has already passed.</div>
+    </div>
+  </div>
+  <div id="simResult"></div>
+  <div class="banner blue" style="margin-top:10px"><span>&#9432;</span><span>This exact notice window also drives billing: under 24 hours' notice (including "late"/after-the-fact notices) means the class stays billable to the Organization since the teacher had no real chance to be reassigned. 24 hours or more means it's not billed. See the Attendance Approval and Mark Attendance guides for how this shows up downstream.</span></div>
+</div>
+
+<div class="card">
+  <div class="step-label">Editing and deleting — what's allowed</div>
+  <table class="scn">
+    <tr><th>Type</th><th>Edit</th><th>Delete</th></tr>
+    <tr><td>Specific</td><td>Yes — subject, class, section, date, time (vCrop Admin only). Teachers already notified are not re-notified of the edit.</td><td>Yes (vCrop Admin only)</td></tr>
+    <tr><td>Date range</td><td>No — a single request can create separate records per teacher to account for existing overlaps, so editing one in place could desync the others. Delete and ask the Head Teacher to resend with the correct dates instead.</td><td>Yes (vCrop Admin only)</td></tr>
+  </table>
+  <div class="banner red" style="margin-top:10px"><span>&#10005;</span><span>Deleting a cancellation record immediately lets the affected teacher mark attendance for that date again — only do this if the cancellation was sent in error.</span></div>
+</div>
+
+<div class="card">
+  <details>
+    <summary>Full advance-notice color reference</summary>
+    <table class="scn">
+      <tr><th>Timing</th><th>Shown as</th><th>Billing effect</th></tr>
+      <tr><td>Notified after the scheduled time already passed</td><td style="color:#DC2626;font-weight:600">Late (red)</td><td>Billable — shortest possible notice</td></tr>
+      <tr><td>Less than 1 hour before</td><td style="color:#DC2626;font-weight:600">Very short (red)</td><td>Billable</td></tr>
+      <tr><td>1–23 hours 59 minutes before</td><td style="color:#D97706;font-weight:600">Amber</td><td>Billable (under 24h)</td></tr>
+      <tr><td>24 hours or more before</td><td style="color:#16A34A;font-weight:600">Green</td><td>Not billable — fair warning was given</td></tr>
+    </table>
+  </details>
+</div>
+
+<script>
+function toggleTip(id){
+  document.querySelectorAll('.fg.open').forEach(f=>{ if(f.id!==id) f.classList.remove('open'); });
+  document.getElementById(id).classList.toggle('open');
+}
+document.addEventListener('click', function(e){
+  if(!e.target.classList.contains('info')){
+    document.querySelectorAll('.fg.open').forEach(f=>f.classList.remove('open'));
+  }
+});
+function runSim(){
+  const hrs = parseFloat(document.getElementById('simHours').value);
+  const result = document.getElementById('simResult');
+  const abs = Math.abs(hrs);
+  const hh = Math.floor(abs);
+  const mm = Math.round((abs - hh) * 60);
+  const label = hh > 0 ? hh + 'h ' + mm + 'min' : mm + 'min';
+  if (isNaN(hrs)) { result.innerHTML = ''; return; }
+  if (hrs < 0) {
+    result.innerHTML = '<div class="banner red"><span>&#10005;</span><span><b>Late (' + label + ' after scheduled time)</b> — still billable to the Organization.</span></div>';
+  } else if (hrs < 1) {
+    result.innerHTML = '<div class="banner red"><span>&#10005;</span><span><b>' + label + ' — Very short notice</b> — billable to the Organization.</span></div>';
+  } else if (hrs < 24) {
+    result.innerHTML = '<div class="banner amber"><span>&#9888;</span><span><b>' + label + ' before — under 24 hours</b> — billable to the Organization.</span></div>';
+  } else {
+    result.innerHTML = '<div class="banner green"><span>&#10003;</span><span><b>' + label + ' before — 24 hours or more</b> — not billable, fair warning was given.</span></div>';
+  }
+}
+runSim();
+</script>
+</body>
+</html>

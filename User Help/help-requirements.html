@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Requirements Workflow — Interactive Guide</title>
+<style>
+  :root{
+    --navy:#1E293B; --blue:#1E40AF; --blue-light:#EFF6FF; --blue-border:#BFDBFE;
+    --green:#166534; --green-light:#F0FDF4; --green-border:#BBF7D0;
+    --amber:#92400E; --amber-light:#FEF3C7; --amber-border:#FDE68A;
+    --purple:#5B21B6; --purple-light:#EDE9FE; --purple-border:#DDD6FE;
+    --red:#DC2626; --red-light:#FEF2F2; --red-border:#FECACA;
+    --gray:#64748B; --gray-light:#F8FAFC; --border:#E2E8F0; --text:#1E293B;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:#fff;margin:0;padding:24px;max-width:860px}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:var(--gray);font-size:13px;margin:0 0 20px}
+  .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+  .step-label{font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+  .info{width:15px;height:15px;border-radius:50%;background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-border);font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+  .pipe{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px}
+  .stage{position:relative;border:1px solid var(--border);border-radius:8px;padding:8px 12px;background:var(--gray-light);cursor:pointer;font-weight:600}
+  .stage:hover{border-color:var(--blue-border)}
+  .stage .tip{display:none;position:absolute;z-index:5;top:100%;left:0;margin-top:6px;background:var(--navy);color:#fff;font-size:12px;line-height:1.5;padding:10px 12px;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.18);width:280px;font-weight:400}
+  .stage.open .tip{display:block}
+  .stage.open{border-color:var(--blue)}
+  .tip b{display:block;margin-bottom:3px;color:#93C5FD}
+  .arrow{color:var(--gray);font-size:16px}
+  .fg{margin-bottom:10px}
+  label{display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:4px}
+  select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;color:var(--text)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .banner{border-radius:8px;padding:10px 12px;font-size:12px;margin-top:10px;display:flex;gap:8px;align-items:flex-start}
+  .banner.red{background:var(--red-light);border:1px solid var(--red-border);color:var(--red)}
+  .banner.green{background:var(--green-light);border:1px solid var(--green-border);color:var(--green)}
+  .banner.amber{background:var(--amber-light);border:1px solid var(--amber-border);color:var(--amber)}
+  .banner.blue{background:var(--blue-light);border:1px solid var(--blue-border);color:var(--blue)}
+  .banner.gray{background:var(--gray-light);border:1px solid var(--border);color:var(--gray)}
+  .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+  .scn{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+  .scn th{background:var(--navy);color:#fff;text-align:left;padding:8px 10px}
+  .scn td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  .scn tr:nth-child(even) td{background:var(--gray-light)}
+  details summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--blue);padding:4px 0}
+</style>
+</head>
+<body>
+
+<h1>Requirements workflow — interactive guide</h1>
+<p class="sub">Click any stage below to see what happens there. Use the simulator to check what a given role can do with a candidate at a given point in the process — same logic as the real VTMS Requirements screen.</p>
+
+<div class="card">
+  <div class="step-label">The full pipeline</div>
+  <div class="pipe">
+    <div class="stage" onclick="toggleStage('st1')" id="st1">1. Raised
+      <div class="tip"><b>Who</b>Head Teacher or Cluster Coordinator. <b style="margin-top:6px">What</b>Fills in School, Grade, Subject, Number of teachers needed, Classes per day, Syllabus status (mandatory) and optional notes.</div>
+    </div>
+    <span class="arrow">→</span>
+    <div class="stage" onclick="toggleStage('st2')" id="st2">2. CC approval
+      <div class="tip"><b>Who</b>The school's Cluster Coordinator, only if one is assigned and they didn't raise it themselves. <b style="margin-top:6px">What</b>Skipped entirely if there's no CC for that school, or if the CC is the one who raised it — goes straight to Org Admin instead.</div>
+    </div>
+    <span class="arrow">→</span>
+    <div class="stage" onclick="toggleStage('st3')" id="st3">3. Org approval
+      <div class="tip"><b>Who</b>Org Admin or vCrop Admin. <b style="margin-top:6px">What</b>Approve moves it to Resumes. Reject requires a mandatory reason and ends the requirement.</div>
+    </div>
+    <span class="arrow">→</span>
+    <div class="stage" onclick="toggleStage('st4')" id="st4">4. Resumes
+      <div class="tip"><b>Who</b>vCrop Admin uploads candidates; Org Admin, CC and Head Teacher review, shortlist, select and reject. <b style="margin-top:6px">What</b>See the Resumes sub-stages below — this is the longest part of the process.</div>
+    </div>
+    <span class="arrow">→</span>
+    <div class="stage" onclick="toggleStage('st5')" id="st5">5. Allocation
+      <div class="tip"><b>Who</b>Whoever allocates the teacher (Teacher Allocation screen). <b style="margin-top:6px">What</b>Picking the final-selected requirement auto-fills school and classes/day. Completing the allocation marks the requirement Completed.</div>
+    </div>
+  </div>
+  <div class="banner blue" style="margin-top:12px"><span>&#9432;</span><span>The requirement's status badge shows <b>Approved (Shortlisting)</b> for the entire Resumes stage — it doesn't change again until a teacher is actually allocated against it, which is what moves it to <b>Completed</b>. All the shortlisting/selecting activity happens on the individual candidate resumes, not on the requirement's own status.</span></div>
+</div>
+
+<div class="card">
+  <div class="step-label">Resumes sub-stages — one candidate's journey</div>
+  <div class="pipe">
+    <div class="stage" onclick="toggleStage('rs1')" id="rs1">Uploaded
+      <div class="tip"><b>Who</b>vCrop Admin only. <b style="margin-top:6px">What</b>Candidate name + a Google Drive/OneDrive link shared as "Anyone with the link", plus optional notes.</div>
+    </div>
+    <span class="arrow">→</span>
+    <div class="stage" onclick="toggleStage('rs2')" id="rs2">Shortlisted
+      <div class="tip"><b>Who</b>Org Admin, CC and Head Teacher each have their own independent, one-way shortlist slot. <b style="margin-top:6px">What</b>Any one of them shortlisting is enough to move the candidate into "Shortlisted for interview" — the other two slots stay open and are tracked separately in the audit trail.</div>
+    </div>
+    <span class="arrow">→</span>
+    <div class="stage" onclick="toggleStage('rs3')" id="rs3">Selected (school)
+      <div class="tip"><b>Who</b>CC or Head Teacher only. <b style="margin-top:6px">What</b>Requires the candidate to already be shortlisted. Marks them as the school's pick, awaiting Org Admin's final sign-off.</div>
+    </div>
+    <span class="arrow">→</span>
+    <div class="stage" onclick="toggleStage('rs4')" id="rs4">⭐ Final Selected
+      <div class="tip"><b>Who</b>Org Admin only. <b style="margin-top:6px">What</b>Requires the candidate to already be Selected (school) first — Org Admin cannot skip straight to Final Select. This is the candidate that becomes eligible for teacher allocation.</div>
+    </div>
+  </div>
+  <div class="banner amber" style="margin-top:12px"><span>&#9888;</span><span><b>Reject</b> is available to Org Admin, CC and Head Teacher at any point before a candidate is Final Selected — it always requires a reason, and is final for that candidate.</span></div>
+</div>
+
+<div class="card">
+  <div class="step-label">Try it — who can do what, at each stage?</div>
+  <div class="grid2">
+    <div class="fg">
+      <label>Your role</label>
+      <select id="simRole" onchange="runSim()">
+        <option value="vcrop_admin">vCrop Admin</option>
+        <option value="org_admin">Org Admin</option>
+        <option value="cluster_coordinator">Cluster Coordinator</option>
+        <option value="head_teacher">Head Teacher</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Candidate's current status</label>
+      <select id="simStatus" onchange="runSim()">
+        <option value="uploaded">Uploaded</option>
+        <option value="shortlisted">Shortlisted</option>
+        <option value="school_selected">Selected (school)</option>
+        <option value="final_selected">Final Selected</option>
+        <option value="rejected">Rejected</option>
+      </select>
+    </div>
+  </div>
+  <div id="simResult"></div>
+</div>
+
+<div class="card">
+  <details>
+    <summary>Full requirement status reference</summary>
+    <table class="scn">
+      <tr><th>Status badge</th><th>Meaning</th></tr>
+      <tr><td>Awaiting CC</td><td>Raised by someone other than the school's CC, and a CC is assigned — waiting on that CC to approve or reject.</td></tr>
+      <tr><td>Pending Org Approval</td><td>Waiting on Org Admin or vCrop Admin to approve or reject.</td></tr>
+      <tr><td>Approved (Shortlisting)</td><td>Approved — this is also the badge shown throughout the entire Resumes stage, no matter how far a candidate has progressed.</td></tr>
+      <tr><td>Rejected</td><td>Rejected at CC or Org Admin stage, with a reason recorded.</td></tr>
+      <tr><td>Completed</td><td>A teacher has been allocated against this requirement — shows the allocated teacher's name and completion date.</td></tr>
+    </table>
+  </details>
+</div>
+
+<script>
+function toggleStage(id){
+  document.querySelectorAll('.stage.open').forEach(s=>{ if(s.id!==id) s.classList.remove('open'); });
+  document.getElementById(id).classList.toggle('open');
+}
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.stage')){
+    document.querySelectorAll('.stage.open').forEach(s=>s.classList.remove('open'));
+  }
+});
+
+const ACTIONS = {
+  vcrop_admin: {
+    uploaded: ['Upload more candidates', 'Delete this candidate', 'View resume'],
+    shortlisted: ['Delete this candidate', 'View resume'],
+    school_selected: ['Delete this candidate', 'View resume'],
+    final_selected: ['Delete this candidate', 'View resume'],
+    rejected: ['Delete this candidate', 'View resume'],
+  },
+  org_admin: {
+    uploaded: ['Shortlist (own slot)', 'Reject (with reason)', 'View resume'],
+    shortlisted: ['Reject (with reason)', 'View resume — cannot Select, that\'s CC/HT only'],
+    school_selected: ['⭐ Final Select', 'Reject (with reason)', 'View resume'],
+    final_selected: ['View resume only — no further action, candidate is locked in'],
+    rejected: ['View resume only'],
+  },
+  cluster_coordinator: {
+    uploaded: ['Shortlist (own slot)', 'Reject (with reason)', 'View resume'],
+    shortlisted: ['Select (school level)', 'Reject (with reason)', 'View resume'],
+    school_selected: ['Reject (with reason)', 'View resume — Final Select is Org Admin only'],
+    final_selected: ['View resume only — no further action'],
+    rejected: ['View resume only'],
+  },
+  head_teacher: {
+    uploaded: ['Shortlist (own slot)', 'Reject (with reason)', 'View resume'],
+    shortlisted: ['Select (school level)', 'Reject (with reason)', 'View resume'],
+    school_selected: ['Reject (with reason)', 'View resume — Final Select is Org Admin only'],
+    final_selected: ['View resume only — no further action'],
+    rejected: ['View resume only'],
+  }
+};
+
+function runSim(){
+  const role = document.getElementById('simRole').value;
+  const status = document.getElementById('simStatus').value;
+  const opts = ACTIONS[role][status];
+  const result = document.getElementById('simResult');
+  const cls = status === 'rejected' ? 'gray' : status === 'final_selected' ? 'blue' : 'green';
+  result.innerHTML = '<div class="banner ' + cls + '"><span>&#8594;</span><span>' + opts.map(o=>'• '+o).join('<br>') + '</span></div>';
+}
+runSim();
+</script>
+</body>
+</html>

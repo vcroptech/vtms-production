@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Teacher Allocation — Interactive Guide</title>
+<style>
+  :root{
+    --navy:#1E293B; --blue:#1E40AF; --blue-light:#EFF6FF; --blue-border:#BFDBFE;
+    --green:#166534; --green-light:#F0FDF4; --green-border:#BBF7D0;
+    --amber:#92400E; --amber-light:#FEF3C7; --amber-border:#FDE68A;
+    --red:#DC2626; --red-light:#FEF2F2; --red-border:#FECACA;
+    --teal:#0D9488; --teal-light:#F0FDFA; --teal-border:#99F6E4;
+    --gray:#64748B; --gray-light:#F8FAFC; --border:#E2E8F0; --text:#1E293B;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:#fff;margin:0;padding:24px;max-width:880px}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:var(--gray);font-size:13px;margin:0 0 20px}
+  .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+  .step-label{font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+  .info{width:15px;height:15px;border-radius:50%;background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-border);font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+  .fg{margin-bottom:10px}
+  label{display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:4px}
+  select,input{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;color:var(--text)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .banner{border-radius:8px;padding:10px 12px;font-size:12px;margin-top:10px;display:flex;gap:8px;align-items:flex-start}
+  .banner.red{background:var(--red-light);border:1px solid var(--red-border);color:var(--red)}
+  .banner.green{background:var(--green-light);border:1px solid var(--green-border);color:var(--green)}
+  .banner.amber{background:var(--amber-light);border:1px solid var(--amber-border);color:var(--amber)}
+  .banner.blue{background:var(--blue-light);border:1px solid var(--blue-border);color:var(--blue)}
+  .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+  .b-blue{background:var(--blue-light);color:var(--blue)}
+  .b-amber{background:var(--amber-light);color:var(--amber)}
+  .bar{height:22px;border-radius:6px;background:var(--gray-light);border:1px solid var(--border);overflow:hidden;position:relative;margin-top:6px}
+  .bar-fill{height:100%;background:var(--teal);display:flex;align-items:center;justify-content:flex-end;color:#fff;font-size:11px;font-weight:600;padding-right:6px;transition:width .2s}
+  .bar-fill.over{background:var(--red)}
+  .scn{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+  .scn th{background:var(--navy);color:#fff;text-align:left;padding:8px 10px}
+  .scn td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  .scn tr:nth-child(even) td{background:var(--gray-light)}
+  details summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--blue);padding:4px 0}
+</style>
+</head>
+<body>
+
+<h1>Teacher Allocation — interactive guide</h1>
+<p class="sub">Click the <span class="info" style="cursor:default">i</span> for details. Use the capacity simulator below to see how the 6-classes/day cap and the "Available" filter actually work across multiple schools.</p>
+
+<div class="card">
+  <div class="step-label">Who can do what</div>
+  <table class="scn">
+    <tr><th>Action</th><th>Who</th></tr>
+    <tr><td>Add a teacher, Allocate, Edit classes, De-allocate, Cancel de-allocation, Enable/Disable login, Reset password</td><td>vCrop Admin only</td></tr>
+    <tr><td>View teachers</td><td>vCrop Admin sees everyone; Org Admin / Cluster Coordinator / Head Teacher see only teachers currently active at their own school(s)</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <div class="step-label">Two ways to allocate a teacher</div>
+  <div class="grid2">
+    <div class="fg" style="background:#F8FAFF;border:1px solid var(--blue-border);border-radius:10px;padding:12px">
+      <div style="font-weight:600;font-size:13px;margin-bottom:6px">🔗 Linked to a Requirement</div>
+      <p style="font-size:12px;margin:0">Pick a requirement whose candidate was Final Selected — this auto-fills the school and classes/day, and tries to auto-match the teacher by candidate name. Completing the allocation automatically marks that requirement <b>Completed</b>.</p>
+    </div>
+    <div class="fg" style="background:#FFFBEB;border:1px solid var(--amber-border);border-radius:10px;padding:12px">
+      <div style="font-weight:600;font-size:13px;margin-bottom:6px">✍️ Manual, no requirement</div>
+      <p style="font-size:12px;margin:0">Fill in Teacher, School, and Classes per day yourself — used for allocations that didn't go through the Requirements/Resumes pipeline at all.</p>
+    </div>
+  </div>
+  <div class="banner blue" style="margin-top:10px"><span>&#9432;</span><span>Optionally list specific Class + Section + Subject rows at allocation time, or leave it for later via "Edit classes." Duplicate class/section rows are blocked before submission.</span></div>
+</div>
+
+<div class="card">
+  <div class="step-label">Classes per day vs. the specific class list — which number counts?</div>
+  <p style="font-size:12px;margin:0 0 8px">Classes per day (a plain number) and the specific Class/Section/Subject list are edited independently, so they can drift apart — e.g. allocated at 3/day, then 6 specific rows added later via "Edit classes" without ever revisiting the number. VTMS always uses whichever is <b>larger</b> as the real daily commitment, so a concretely-listed class can never go silently uncounted.</p>
+  <div class="banner green"><span>&#10003;</span><span>Effective classes/day = <b>max(Classes per day, number of specific class rows listed)</b>. If you later add more specific rows than the original number, the number itself is automatically bumped up to match — never down.</span></div>
+</div>
+
+<div class="card">
+  <div class="step-label">The 6-classes/day cap — try it yourself</div>
+  <p style="font-size:12px;margin:0 0 8px">A school day has 6 class periods, so 6 is the most a single teacher can be committed to across <b>all their active schools combined</b> — not a per-school limit.</p>
+  <div class="grid3">
+    <div class="fg"><label>School A classes/day</label><input type="number" id="simA" value="3" min="0" max="6" oninput="runSim()"></div>
+    <div class="fg"><label>School B classes/day</label><input type="number" id="simB" value="2" min="0" max="6" oninput="runSim()"></div>
+    <div class="fg"><label>School C classes/day</label><input type="number" id="simC" value="0" min="0" max="6" oninput="runSim()"></div>
+  </div>
+  <div class="bar" id="simBar"><div class="bar-fill" id="simBarFill" style="width:0%">0/6</div></div>
+  <div id="simResult"></div>
+</div>
+
+<div class="card">
+  <div class="step-label">Editing classes later</div>
+  <p style="font-size:12px;margin:0">"Edit classes" lets you add, change, or remove Class/Section/Subject rows for any of a teacher's active allocations — one section per school. Duplicate class/section rows are blocked per school. If the edited list ends up longer than the current classes/day number, that number is bumped up automatically to match, exactly like at allocation time.</p>
+</div>
+
+<div class="card">
+  <div class="step-label">De-allocating a teacher</div>
+  <table class="scn">
+    <tr><th>Field</th><th>Notes</th></tr>
+    <tr><td>School</td><td>Pick which specific school to end — other active allocations for this teacher are untouched.</td></tr>
+    <tr><td>Last working date</td><td>Can be a <b>past or future</b> date.</td></tr>
+  </table>
+  <div class="banner amber" style="margin-top:10px"><span>&#9888;</span><span>A <b>future</b> last working date means the teacher is still genuinely teaching there until that date — they don't disappear from the school's active list immediately. Only once today's date passes the last working date does the allocation actually drop off.</span></div>
+  <p style="font-size:12px;margin-top:8px">De-allocating notifies Org Admin, the school's Head Teacher and Cluster Coordinator, and the teacher themselves — every message includes the actual last working date.</p>
+</div>
+
+<div class="card">
+  <div class="step-label">Cancel de-allocation</div>
+  <p style="font-size:12px;margin:0">Available only while a de-allocation is still <b>pending</b> — i.e. the last working date hasn't passed yet. Cancelling restores the allocation to active and clears the last working date entirely, as if the de-allocation never happened. Once the last working date has actually passed, the allocation has fully expired and this option no longer applies.</p>
+</div>
+
+<div class="card">
+  <div class="step-label">Teacher account actions</div>
+  <p style="font-size:12px;margin:0">Separate from allocation itself: <b>Enable/Disable</b> toggles the teacher's ability to log in at all, and <b>Reset password</b> issues a new password — both apply to any teacher who has a linked login account, regardless of their current allocation status.</p>
+</div>
+
+<div class="card">
+  <details>
+    <summary>Filters on the Teachers screen</summary>
+    <table class="scn">
+      <tr><th>Filter</th><th>Matches</th></tr>
+      <tr><td>All</td><td>Every teacher in scope.</td></tr>
+      <tr><td>Not allocated</td><td>Zero active school allocations.</td></tr>
+      <tr><td>Available</td><td>Total effective classes/day across all active allocations is under 6 — spare daily capacity, regardless of how many schools that's spread across.</td></tr>
+    </table>
+  </details>
+</div>
+
+<script>
+function runSim(){
+  const a = parseInt(document.getElementById('simA').value) || 0;
+  const b = parseInt(document.getElementById('simB').value) || 0;
+  const c = parseInt(document.getElementById('simC').value) || 0;
+  const total = a + b + c;
+  const cap = 6;
+  const pct = Math.min(100, (total / cap) * 100);
+  const fill = document.getElementById('simBarFill');
+  fill.style.width = pct + '%';
+  fill.textContent = total + '/' + cap;
+  fill.className = 'bar-fill' + (total >= cap ? ' over' : '');
+  const result = document.getElementById('simResult');
+  if (total >= cap) {
+    result.innerHTML = '<div class="banner red"><span>&#10005;</span><span><b>Not Available</b> — ' + total + ' of 6 daily classes committed. This teacher will not show up under the "Available" filter.</span></div>';
+  } else {
+    result.innerHTML = '<div class="banner green"><span>&#10003;</span><span><b>Available</b> — ' + (cap - total) + ' class(es)/day of spare capacity left, spread across however many schools.</span></div>';
+  }
+}
+runSim();
+</script>
+</body>
+</html>

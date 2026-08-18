@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Issues — Interactive Guide</title>
+<style>
+  :root{
+    --navy:#1E293B; --blue:#1E40AF; --blue-light:#EFF6FF; --blue-border:#BFDBFE;
+    --green:#166534; --green-light:#F0FDF4; --green-border:#BBF7D0;
+    --amber:#92400E; --amber-light:#FEF3C7; --amber-border:#FDE68A;
+    --purple:#5B21B6; --purple-light:#EDE9FE; --purple-border:#DDD6FE;
+    --red:#DC2626; --red-light:#FEF2F2; --red-border:#FECACA;
+    --gray:#64748B; --gray-light:#F8FAFC; --border:#E2E8F0; --text:#1E293B;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:#fff;margin:0;padding:24px;max-width:860px}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:var(--gray);font-size:13px;margin:0 0 20px}
+  .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+  .step-label{font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+  .info{width:15px;height:15px;border-radius:50%;background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-border);font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .typebox{border:1px solid var(--border);border-radius:10px;padding:12px}
+  .typebox h3{margin:0 0 6px;font-size:13px}
+  .typebox.teacher{border-color:var(--blue-border);background:#F8FAFF}
+  .typebox.ht{border-color:var(--purple-border);background:#FAF8FF}
+  .fg{margin-bottom:10px}
+  label{display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:4px}
+  select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;color:var(--text)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .banner{border-radius:8px;padding:10px 12px;font-size:12px;margin-top:10px;display:flex;gap:8px;align-items:flex-start}
+  .banner.red{background:var(--red-light);border:1px solid var(--red-border);color:var(--red)}
+  .banner.green{background:var(--green-light);border:1px solid var(--green-border);color:var(--green)}
+  .banner.amber{background:var(--amber-light);border:1px solid var(--amber-border);color:var(--amber)}
+  .banner.blue{background:var(--blue-light);border:1px solid var(--blue-border);color:var(--blue)}
+  .banner.gray{background:var(--gray-light);border:1px solid var(--border);color:var(--gray)}
+  .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+  .b-gray{background:#F1F5F9;color:#475569}
+  .b-amber{background:var(--amber-light);color:var(--amber)}
+  .b-green{background:var(--green-light);color:var(--green)}
+  .scn{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+  .scn th{background:var(--navy);color:#fff;text-align:left;padding:8px 10px}
+  .scn td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  .scn tr:nth-child(even) td{background:var(--gray-light)}
+  details summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--blue);padding:4px 0}
+  .trail{border-left:2px solid var(--border);padding-left:12px;display:flex;flex-direction:column;gap:10px;font-size:12px}
+  .trail .lbl{font-weight:600;color:var(--gray);font-size:11px}
+</style>
+</head>
+<body>
+
+<h1>Issues — interactive guide</h1>
+<p class="sub">Click the <span class="info" style="cursor:default">i</span> for details. Use the simulator below to check exactly who can act on a given issue — this is the one part of Issues that genuinely isn't obvious.</p>
+
+<div class="card">
+  <div class="step-label">Who can raise an issue — and about what</div>
+  <div class="two">
+    <div class="typebox teacher">
+      <h3>👩‍🏫 Teacher raises</h3>
+      <p style="font-size:12px;margin:0 0 6px">About their <b>own school</b> — a problem affecting their teaching there (timetable clash, missing books, calendar conflict, etc.).</p>
+      <p style="font-size:12px;margin:0">Picks one of their own active school allocations, a category, and a description.</p>
+    </div>
+    <div class="typebox ht">
+      <h3>🏫 Head Teacher raises</h3>
+      <p style="font-size:12px;margin:0 0 6px">About a <b>specific teacher</b> at their school — a problem with or concerning that teacher.</p>
+      <p style="font-size:12px;margin:0">Picks any currently-allocated teacher at their own school(s), a category, and a description.</p>
+    </div>
+  </div>
+  <div class="banner blue" style="margin-top:12px"><span>&#9432;</span><span>Only Teacher and Head Teacher can raise an issue. Cluster Coordinator, Org Admin and vCrop Admin can view and act on issues, but never raise one themselves.</span></div>
+</div>
+
+<div class="card">
+  <div class="step-label">Categories</div>
+  <p style="font-size:12px;color:var(--text2)">Timetable · Curriculum Bifurcation · Books/Materials · School Calendar · Student List · Internet Issue · Question Paper Blue Print · Other</p>
+</div>
+
+<div class="card">
+  <div class="step-label">Who gets notified when an issue is raised</div>
+  <table class="scn">
+    <tr><th>Always notified</th><th>Also notified, conditionally</th></tr>
+    <tr><td>vCrop Admin, Org Admin</td><td>The school's Cluster Coordinator, if one is assigned</td></tr>
+    <tr><td>The school's Head Teacher</td><td>Skipped if the Head Teacher is the one raising it</td></tr>
+    <tr><td>—</td><td>If a <b>Head Teacher</b> raised it: the <b>subject teacher</b> is notified directly, since the issue is about them</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <div class="step-label">The one thing that isn't obvious: who can act depends on who raised it</div>
+  <p style="font-size:12px;margin:0 0 10px">Action rights are <b>not</b> based on the usual role hierarchy — they depend entirely on who raised the specific issue you're looking at.</p>
+  <table class="scn">
+    <tr><th>Issue raised by...</th><th>Who can click In Progress / Resolve</th><th>Who cannot act</th></tr>
+    <tr><td>Head Teacher (about a teacher)</td><td>The subject Teacher, and vCrop Admin</td><td>Org Admin, Cluster Coordinator, and the raising Head Teacher themselves</td></tr>
+    <tr><td>Teacher (about their school)</td><td>Org Admin, Cluster Coordinator, Head Teacher, and vCrop Admin</td><td>The raising Teacher themselves</td></tr>
+  </table>
+  <div class="banner amber" style="margin-top:10px"><span>&#9888;</span><span>vCrop Admin can always act on any issue, regardless of who raised it. Everyone else's ability to act flips entirely based on the raiser — the same person (say, a Head Teacher) can act on issues teachers raise, but is locked out of acting on issues they raised themselves.</span></div>
+</div>
+
+<div class="card">
+  <div class="step-label">Try it — can you act on this issue?</div>
+  <div class="grid2">
+    <div class="fg">
+      <label>Your role</label>
+      <select id="simRole" onchange="runSim()">
+        <option value="vcrop_admin">vCrop Admin</option>
+        <option value="org_admin">Org Admin</option>
+        <option value="cluster_coordinator">Cluster Coordinator</option>
+        <option value="head_teacher">Head Teacher</option>
+        <option value="teacher">Teacher (the subject of the issue)</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Who raised this issue</label>
+      <select id="simRaiser" onchange="runSim()">
+        <option value="teacher">Teacher (about their school)</option>
+        <option value="head_teacher">Head Teacher (about this teacher)</option>
+      </select>
+    </div>
+  </div>
+  <div id="simResult"></div>
+</div>
+
+<div class="card">
+  <div class="step-label">Actions and what they mean</div>
+  <table class="scn">
+    <tr><th>Action</th><th>Available from</th><th>What it needs</th><th>Notifies</th></tr>
+    <tr><td><span class="badge b-amber">In Progress</span></td><td>Open only</td><td>Just a click — optional acknowledgement step</td><td>Raiser, subject teacher, school's HT and CC, Org Admin, vCrop Admin — everyone except whoever clicked it</td></tr>
+    <tr><td><span class="badge b-green">Resolve</span></td><td>Open or In Progress</td><td>Mandatory resolution notes describing what was done</td><td>Same broadcast list as In Progress</td></tr>
+  </table>
+  <div class="banner blue" style="margin-top:10px"><span>&#9432;</span><span>You can Resolve directly from Open — going through In Progress first is optional, not a required step. Whoever last changed the status has their name shown right under the status badge.</span></div>
+</div>
+
+<div class="card">
+  <div class="step-label">Reading the Action trail (inside View)</div>
+  <div class="trail">
+    <div><div class="lbl">Raised by Teacher</div><div>Anjali Verma · 28 Jul 2026, 4:10 PM</div></div>
+    <div><div class="lbl">Marked In Progress</div><div>Ramesh Kumar (Org Admin) · 28 Jul 2026, 5:30 PM</div></div>
+    <div><div class="lbl">Resolved</div><div>Ramesh Kumar (Org Admin) · 29 Jul 2026, 10:15 AM</div><div style="color:var(--green)">Ordered replacement books from the district office; delivered same day.</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <details>
+    <summary>Who can even see which issues (before acting on them)</summary>
+    <table class="scn">
+      <tr><th>Role</th><th>Sees</th></tr>
+      <tr><td>vCrop Admin</td><td>Every issue, everywhere</td></tr>
+      <tr><td>Org Admin</td><td>Issues at schools in their own organization</td></tr>
+      <tr><td>Cluster Coordinator / Head Teacher</td><td>Issues at their own assigned school(s)</td></tr>
+      <tr><td>Teacher</td><td>Only issues about themselves — whether they raised it or a Head Teacher raised it about them</td></tr>
+    </table>
+  </details>
+</div>
+
+<script>
+const ACT = {
+  teacher: { // raised by teacher
+    vcrop_admin: true, org_admin: true, cluster_coordinator: true, head_teacher: true, teacher: false
+  },
+  head_teacher: { // raised by head teacher
+    vcrop_admin: true, org_admin: false, cluster_coordinator: false, head_teacher: false, teacher: true
+  }
+};
+function runSim(){
+  const role = document.getElementById('simRole').value;
+  const raiser = document.getElementById('simRaiser').value;
+  const canAct = ACT[raiser][role];
+  const result = document.getElementById('simResult');
+  if (canAct) {
+    result.innerHTML = '<div class="banner green"><span>&#10003;</span><span><b>Yes</b> — you can click In Progress and/or Resolve on this issue.</span></div>';
+  } else {
+    result.innerHTML = '<div class="banner red"><span>&#10005;</span><span><b>No</b> — you can view this issue, but the In Progress / Resolve buttons won\'t appear for you.</span></div>';
+  }
+}
+runSim();
+</script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Attendance Approval — Interactive Guide (Head Teacher)</title>
+<style>
+  :root{
+    --navy:#1E293B; --blue:#1E40AF; --blue-light:#EFF6FF; --blue-border:#BFDBFE;
+    --green:#166534; --green-light:#F0FDF4; --green-border:#BBF7D0;
+    --amber:#92400E; --amber-light:#FEF3C7; --amber-border:#FDE68A;
+    --red:#DC2626; --red-light:#FEF2F2; --red-border:#FECACA;
+    --gray:#64748B; --gray-light:#F8FAFC; --border:#E2E8F0; --text:#1E293B;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:#fff;margin:0;padding:24px;max-width:820px}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:var(--gray);font-size:13px;margin:0 0 20px}
+  .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+  .step-label{font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+  .info{width:15px;height:15px;border-radius:50%;background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-border);font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+  .tip{display:none;position:absolute;z-index:5;top:100%;left:0;margin-top:4px;background:var(--navy);color:#fff;font-size:12px;line-height:1.5;padding:10px 12px;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.18);width:260px}
+  .tip b{display:block;margin-bottom:3px;color:#93C5FD}
+  .th-wrap{position:relative;display:inline-flex;align-items:center;gap:4px}
+  .th-wrap.open .tip{display:block}
+  table.mock{width:100%;border-collapse:collapse;font-size:12px}
+  table.mock th{background:var(--navy);color:#fff;text-align:left;padding:8px 9px;white-space:nowrap;font-weight:600}
+  table.mock td{padding:8px 9px;border-bottom:1px solid var(--border);vertical-align:top}
+  table.mock tr:nth-child(even) td{background:var(--gray-light)}
+  .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+  .b-gray{background:#F1F5F9;color:#475569}
+  .btn{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:11px;background:#fff;cursor:default}
+  .btn-approve{color:var(--green);border-color:var(--green-border);background:var(--green-light)}
+  .btn-reject{color:var(--red);border-color:var(--red-border);background:var(--red-light)}
+  .banner{border-radius:8px;padding:10px 12px;font-size:12px;margin-top:10px;display:flex;gap:8px;align-items:flex-start}
+  .banner.red{background:var(--red-light);border:1px solid var(--red-border);color:var(--red)}
+  .banner.green{background:var(--green-light);border:1px solid var(--green-border);color:var(--green)}
+  .banner.amber{background:var(--amber-light);border:1px solid var(--amber-border);color:var(--amber)}
+  .banner.blue{background:var(--blue-light);border:1px solid var(--blue-border);color:var(--blue)}
+  .fg{margin-bottom:10px}
+  label{display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:4px}
+  select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;color:var(--text)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .trail{border-left:2px solid var(--border);padding-left:12px;display:flex;flex-direction:column;gap:10px;font-size:12px}
+  .trail .lbl{font-weight:600;color:var(--gray);font-size:11px}
+  .trail .meta{color:#444}
+  .trail .reason{color:var(--red);font-size:11px;margin-top:2px}
+  .scn{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+  .scn th{background:var(--navy);color:#fff;text-align:left;padding:8px 10px}
+  .scn td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  .scn tr:nth-child(even) td{background:var(--gray-light)}
+  details summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--blue);padding:4px 0}
+</style>
+</head>
+<body>
+
+<h1>Attendance Approval — interactive guide (Head Teacher)</h1>
+<p class="sub">Click the <span class="info" style="cursor:default">i</span> next to any column to see what it means. Use the simulator below to see how a review comes together — same logic as the real VTMS Pending approval queue.</p>
+
+<div class="card">
+  <div class="step-label">The Pending approval queue</div>
+  <div style="overflow-x:auto">
+  <table class="mock">
+    <tr>
+      <th><span class="th-wrap" onclick="toggleTip('th-teacher')" id="th-teacher">Teacher <span class="info">i</span>
+        <div class="tip"><b>Shows</b>Who submitted this record.</div></span></th>
+      <th><span class="th-wrap" onclick="toggleTip('th-school')" id="th-school">School <span class="info">i</span>
+        <div class="tip"><b>Shows</b>Which of your schools this is for. <b style="margin-top:6px">Notes</b>Only your assigned schools appear.</div></span></th>
+      <th><span class="th-wrap" onclick="toggleTip('th-date')" id="th-date">Class Date <span class="info">i</span>
+        <div class="tip"><b>Shows</b>The date the class actually took place.</div></span></th>
+      <th>Day</th>
+      <th><span class="th-wrap" onclick="toggleTip('th-class')" id="th-class">Class <span class="info">i</span>
+        <div class="tip"><b>Shows</b>Class-Section taught, e.g. 8-A.</div></span></th>
+      <th><span class="th-wrap" onclick="toggleTip('th-cond')" id="th-cond">Conducted <span class="info">i</span>
+        <div class="tip"><b>Shows</b>Classes conducted vs. assigned that day, e.g. 3/3.</div></span></th>
+      <th><span class="th-wrap" onclick="toggleTip('th-sub')" id="th-sub">Submitted <span class="info">i</span>
+        <div class="tip"><b>Shows</b>First submission time. <b style="margin-top:6px">Notes</b>If edited/resubmitted after rejection, the edited time also appears in amber underneath.</div></span></th>
+      <th>Status</th>
+      <th><span class="th-wrap" onclick="toggleTip('th-act')" id="th-act">Actions <span class="info">i</span>
+        <div class="tip"><b>Shows</b>Approve, Reject, and View — only Approve/Reject act on the record; View just opens it.</div></span></th>
+    </tr>
+    <tr>
+      <td>Anjali Verma</td><td>Satya Bharti School – Dasania</td><td>29 Jul 2026</td><td>Wed</td>
+      <td>8-A</td><td>3/3</td>
+      <td style="font-size:11px;color:#555">30 Jul, 9:14 AM</td>
+      <td><span class="badge b-gray">Pending</span></td>
+      <td><span class="btn btn-approve">✓</span> <span class="btn btn-reject">✕</span> <span class="btn">👁</span></td>
+    </tr>
+    <tr>
+      <td>Ravi Kumar</td><td>Satya Bharti School – Dasania</td><td>30 Jul 2026</td><td>Thu</td>
+      <td>7-B <span class="badge" style="background:#FEF3C7;color:#92400E;margin-left:4px;font-size:9px">Cancelled</span></td><td>2/3</td>
+      <td style="font-size:11px;color:#555">30 Jul, 4:50 PM</td>
+      <td><span class="badge b-gray">Pending</span></td>
+      <td><span class="btn btn-approve">✓</span> <span class="btn btn-reject">✕</span> <span class="btn">👁</span></td>
+    </tr>
+  </table>
+  </div>
+  <div class="banner blue" style="margin-top:12px"><span>&#9432;</span><span>Conducted classes on Working days always land here. Cancelled classes and All Classes Cancelled days now land here too — <b>unless you (as Head Teacher) already raised a formal Class Cancellation</b> for that exact class or date, in which case it's auto-approved the instant it's submitted, since you already made that call. School Holiday, On Leave, and Not Conducted rows are always auto-approved and never appear here.</span></div>
+</div>
+
+<div class="card">
+  <div class="step-label">Reviewing a Cancelled / All Classes Cancelled record</div>
+  <p style="font-size:13px;line-height:1.6;margin:0 0 10px">These rows land in your queue specifically <i>because</i> no formal Class Cancellation record exists for them yet — the teacher or school reported the cancellation, but you haven't logged it yourself. Open the record and ask:</p>
+  <table class="scn">
+    <tr><th>What you see</th><th>Decision</th><th>Notes</th></tr>
+    <tr><td>Matches a cancellation you know actually happened (school event, weather, etc.)</td><td>Approve</td><td>Consider also raising the formal Class Cancellation yourself for future record-keeping — it won't affect this record either way.</td></tr>
+    <tr><td>You don't recognize this cancellation, or it doesn't match anything you're aware of</td><td>Reject and ask, or contact vCrop Admin</td><td>Ask the teacher what happened. Don't approve on a guess — this still affects billing as an "Unrecorded Cancellation".</td></tr>
+    <tr><td>Topics/Remark doesn't explain why the class was cancelled</td><td>Reject, with a reason</td><td>Ask for a specific reason, same as you would for a vague Conducted entry.</td></tr>
+  </table>
+  <div class="banner blue" style="margin-top:12px"><span>&#9432;</span><span>Unlike a Conducted class, whether a Cancelled / All Classes Cancelled record is billable does <b>not</b> depend on your approve/reject decision — that's already determined by whether a formal Class Cancellation record exists and how much advance notice it gave. Your review here is about verifying the record is genuine, not about billing.</span></div>
+</div>
+<div class="card">
+  <div class="step-label">Decision simulator — try different records</div>
+  <div class="grid2">
+    <div class="fg">
+      <label>Topics taught / Remark quality</label>
+      <select id="simTopics" onchange="runSim()">
+        <option value="good">Specific and believable</option>
+        <option value="vague">Vague / generic / copy-pasted</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Classes conducted vs. assigned</label>
+      <select id="simConducted" onchange="runSim()">
+        <option value="match">Matches, makes sense</option>
+        <option value="mismatch">Lower than assigned, unexplained</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Homework file link (if attached)</label>
+      <select id="simHw" onchange="runSim()">
+        <option value="none">No file attached</option>
+        <option value="opens">Attached, opens fine</option>
+        <option value="broken">Attached, doesn't open / not shared</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Overall confidence this class genuinely happened as described</label>
+      <select id="simConfidence" onchange="runSim()">
+        <option value="sure">Confident it's accurate</option>
+        <option value="unsure">Not sure</option>
+      </select>
+    </div>
+  </div>
+  <div id="simResult"></div>
+</div>
+
+<div class="card">
+  <div class="step-label">Reading the Action trail (inside View)</div>
+  <div class="trail">
+    <div><div class="lbl">Submitted by Teacher</div><div class="meta">Anjali Verma · 28 Jul 2026, 6:40 PM</div></div>
+    <div><div class="lbl">Head Teacher — Rejected <span class="badge" style="background:#FEE2E2;color:#991B1B;margin-left:4px">Rejected</span></div><div class="meta">You · 29 Jul 2026, 8:02 AM</div><div class="reason">Reason: Topics taught is too vague — please describe what was actually covered.</div></div>
+    <div><div class="lbl">Re-submitted after edit — Teacher</div><div class="meta">Anjali Verma · 29 Jul 2026, 5:15 PM</div></div>
+    <div><div class="lbl">Head Teacher — Approved <span class="badge" style="background:#DCFCE7;color:#166534;margin-left:4px">Approved</span></div><div class="meta">You · 30 Jul 2026, 9:20 AM</div></div>
+  </div>
+  <div class="banner blue" style="margin-top:12px"><span>&#9432;</span><span>Every event stays visible in order, even across multiple reject → resubmit rounds. A record that was once rejected never quietly loses that history once it's later approved.</span></div>
+</div>
+
+<div class="card">
+  <details>
+    <summary>Full approve-vs-reject quick-reference table</summary>
+    <table class="scn">
+      <tr><th>What you see</th><th>Decision</th><th>Notes</th></tr>
+      <tr><td>Topics taught is specific and matches a normal lesson</td><td>Approve</td><td>Reads as genuine.</td></tr>
+      <tr><td>Topics taught is vague, generic, or copy-pasted</td><td>Reject, with a reason</td><td>State exactly what's missing.</td></tr>
+      <tr><td>Conducted is less than Assigned, unexplained</td><td>Reject, with a reason</td><td>Ask for clarification or a corrected count.</td></tr>
+      <tr><td>Homework file doesn't open / not shared publicly</td><td>Reject, with a reason</td><td>Ask for "Anyone with the link" sharing.</td></tr>
+      <tr><td>Everything matches what you know happened</td><td>Approve</td><td>No further action needed.</td></tr>
+      <tr><td>Unsure it genuinely happened as described</td><td>Reject and ask, or contact vCrop Admin</td><td>Safer to ask than approve on a guess.</td></tr>
+    </table>
+  </details>
+</div>
+
+<script>
+function toggleTip(id){
+  document.querySelectorAll('.th-wrap.open').forEach(f=>{ if(f.id!==id) f.classList.remove('open'); });
+  document.getElementById(id).classList.toggle('open');
+}
+document.addEventListener('click', function(e){
+  if(!e.target.classList.contains('info')){
+    document.querySelectorAll('.th-wrap.open').forEach(f=>f.classList.remove('open'));
+  }
+});
+function runSim(){
+  const topics = document.getElementById('simTopics').value;
+  const conducted = document.getElementById('simConducted').value;
+  const hw = document.getElementById('simHw').value;
+  const confidence = document.getElementById('simConfidence').value;
+  const reasons = [];
+  if(topics==='vague') reasons.push('Topics taught / Remark is too vague — ask for a specific description of what was actually covered.');
+  if(conducted==='mismatch') reasons.push('Classes conducted is lower than assigned with no explanation — ask the teacher to clarify or correct the count.');
+  if(hw==='broken') reasons.push('Homework file link doesn\'t open — ask the teacher to re-share with "Anyone with the link" access.');
+  if(confidence==='unsure') reasons.push('You\'re not confident this class happened as described — it\'s safer to ask for clarification, or check with vCrop Admin, than to approve on a guess.');
+
+  const result = document.getElementById('simResult');
+  if(reasons.length===0){
+    result.innerHTML = '<div class="banner green"><span>&#10003;</span><span><b>Approve.</b> Everything checks out — the teacher is notified immediately, and this decision is final.</span></div>';
+  } else {
+    result.innerHTML = '<div class="banner red"><span>&#10005;</span><span><b>Reject, with a reason.</b> Suggested reason to enter in the Reject modal:<br>' + reasons.map(r=>'• '+r).join('<br>') + '</span></div>';
+  }
+}
+runSim();
+</script>
+</body>
+</html>

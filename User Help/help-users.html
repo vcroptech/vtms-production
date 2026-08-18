@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Users &amp; Role Management — Interactive Guide</title>
+<style>
+  :root{
+    --navy:#1E293B; --blue:#1E40AF; --blue-light:#EFF6FF; --blue-border:#BFDBFE;
+    --green:#166534; --green-light:#F0FDF4; --green-border:#BBF7D0;
+    --amber:#92400E; --amber-light:#FEF3C7; --amber-border:#FDE68A;
+    --purple:#5B21B6; --purple-light:#EDE9FE; --purple-border:#DDD6FE;
+    --red:#DC2626; --red-light:#FEF2F2; --red-border:#FECACA;
+    --gray:#64748B; --gray-light:#F8FAFC; --border:#E2E8F0; --text:#1E293B;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:#fff;margin:0;padding:24px;max-width:880px}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:var(--gray);font-size:13px;margin:0 0 20px}
+  .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+  .step-label{font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+  .info{width:15px;height:15px;border-radius:50%;background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-border);font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+  .fg{margin-bottom:10px}
+  label{display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:4px}
+  select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;color:var(--text)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .banner{border-radius:8px;padding:10px 12px;font-size:12px;margin-top:10px;display:flex;gap:8px;align-items:flex-start}
+  .banner.red{background:var(--red-light);border:1px solid var(--red-border);color:var(--red)}
+  .banner.green{background:var(--green-light);border:1px solid var(--green-border);color:var(--green)}
+  .banner.amber{background:var(--amber-light);border:1px solid var(--amber-border);color:var(--amber)}
+  .banner.blue{background:var(--blue-light);border:1px solid var(--blue-border);color:var(--blue)}
+  .pyramid{display:flex;flex-direction:column;gap:6px;align-items:center;margin:10px 0}
+  .prow{border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;text-align:center;color:#fff}
+  .scn{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+  .scn th{background:var(--navy);color:#fff;text-align:left;padding:8px 10px}
+  .scn td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  .scn tr:nth-child(even) td{background:var(--gray-light)}
+  details summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--blue);padding:4px 0}
+</style>
+</head>
+<body>
+
+<h1>Users &amp; Role Management — interactive guide</h1>
+<p class="sub">Click the <span class="info" style="cursor:default">i</span> for details. Use the simulator below to see exactly which fields are required for each role you create.</p>
+
+<div class="card">
+  <div class="step-label">Only vCrop Admin can even open this screen</div>
+  <p style="font-size:12px;margin:0">The Users screen doesn't appear in the menu for anyone else — not even Org Admin. It manages logins for <b>Org Admin</b>, <b>Cluster Coordinator</b> and <b>Head Teacher</b> only.</p>
+  <div class="banner blue" style="margin-top:10px"><span>&#9432;</span><span><b>Teacher</b> accounts are created from the separate <b>Teachers</b> screen's "Add teacher" button, not here. <b>vCrop Admin</b>'s own account isn't creatable or manageable from any screen — it can't be disabled, and has no action buttons on its own row.</span></div>
+</div>
+
+<div class="card">
+  <div class="step-label">The role hierarchy</div>
+  <div class="pyramid">
+    <div class="prow" style="background:#5B21B6;width:220px">vCrop Admin — everything, everywhere</div>
+    <div class="prow" style="background:#1E40AF;width:260px">Org Admin — one organization</div>
+    <div class="prow" style="background:#0D9488;width:300px">Cluster Coordinator — several schools</div>
+    <div class="prow" style="background:#B45309;width:340px">Head Teacher — one or more schools</div>
+    <div class="prow" style="background:#64748B;width:380px">Teacher — their own allocations only</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="step-label">Try it — what does creating this role need?</div>
+  <div class="fg">
+    <label>Role you're adding</label>
+    <select id="simRole" onchange="runSim()">
+      <option value="org_admin">Org Admin</option>
+      <option value="cluster_coordinator">Cluster Coordinator</option>
+      <option value="head_teacher">Head Teacher</option>
+    </select>
+  </div>
+  <div id="simResult"></div>
+</div>
+
+<div class="card">
+  <div class="step-label">Fields required, by role</div>
+  <table class="scn">
+    <tr><th>Role</th><th>Organization</th><th>School(s)</th></tr>
+    <tr><td>Org Admin</td><td>Required</td><td>Optional — single school if set at all</td></tr>
+    <tr><td>Cluster Coordinator</td><td>Required</td><td>Required — checkbox list, at least one, can select several</td></tr>
+    <tr><td>Head Teacher</td><td>Required</td><td>Required — checkbox list, at least one, can select several</td></tr>
+  </table>
+  <div class="banner amber" style="margin-top:10px"><span>&#9888;</span><span>If you pick a school that already has someone assigned to that same role, the school's name shows an amber "(assigned: Name)" tag right in the checklist — VTMS still lets you proceed, but you'll likely want to remove the old assignment via "Manage schools" afterward to avoid two people holding the same role at one school.</span></div>
+</div>
+
+<div class="card">
+  <div class="step-label">What happens automatically on creation</div>
+  <table class="scn">
+    <tr><th>Role created</th><th>Auto-synced</th></tr>
+    <tr><td>Org Admin</td><td>That organization's "Org Admin" pointer is set to this new user.</td></tr>
+    <tr><td>Head Teacher</td><td>The (first) selected school's Head Teacher pointer is set to this new user.</td></tr>
+  </table>
+  <p style="font-size:12px;margin-top:8px">Every new user also gets a <b>forced password change</b> flag — they must set their own new password the very first time they log in with the one you gave them.</p>
+</div>
+
+<div class="card">
+  <div class="step-label">Managing schools after creation</div>
+  <p style="font-size:12px;margin:0">Cluster Coordinator and Head Teacher accounts get a <b>"Manage schools"</b> button instead of a plain school cell — add or remove one school at a time. Removing or adding a Head Teacher's school keeps that school's Head Teacher pointer in sync automatically.</p>
+</div>
+
+<div class="card">
+  <div class="step-label">Enable / Disable and Reset password</div>
+  <table class="scn">
+    <tr><th>Action</th><th>What it does</th></tr>
+    <tr><td>Disable</td><td>Blocks that user from logging in at all, immediately — doesn't delete anything, fully reversible with Enable.</td></tr>
+    <tr><td>Reset password</td><td>You set a brand-new password directly and share it with the user yourself — VTMS doesn't email a reset link. Forces a password change at their next login, and automatically resolves any pending "Forgot password" request they had submitted.</td></tr>
+  </table>
+  <div class="banner blue" style="margin-top:10px"><span>&#9432;</span><span>When a user clicks "Forgot password?" on the login screen, it doesn't reset anything by itself — it just raises a request that shows up for vCrop Admin under Notifications → Password resets, waiting for an actual Reset password action here (or on the Teachers screen, for a teacher account).</span></div>
+</div>
+
+<script>
+const REQS = {
+  org_admin: { org: 'Required', school: 'Optional — a single school, or none at all', sync: 'Sets this organization\'s Org Admin pointer to this user.' },
+  cluster_coordinator: { org: 'Required', school: 'Required — pick at least one from the checkbox list, can pick several', sync: 'No automatic pointer sync (Cluster Coordinators aren\'t referenced by a single-value pointer).' },
+  head_teacher: { org: 'Required', school: 'Required — pick at least one from the checkbox list, can pick several', sync: 'Sets the (first) selected school\'s Head Teacher pointer to this user.' },
+};
+function runSim(){
+  const role = document.getElementById('simRole').value;
+  const r = REQS[role];
+  document.getElementById('simResult').innerHTML =
+    '<div class="banner blue"><span>&#9432;</span><span><b>Organization:</b> ' + r.org + '<br><b>School(s):</b> ' + r.school + '<br><b>Auto-sync on save:</b> ' + r.sync + '</span></div>';
+}
+runSim();
+</script>
+</body>
+</html>
