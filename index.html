@@ -1868,8 +1868,13 @@ function renderDashboard() {
       return { school: sc, org, cpd: effectiveCpd(a) };
     }).filter(x => x.school);
     // Head Teacher approval is final now — "pending" means awaiting Head Teacher,
-    // not awaiting Org Admin (who no longer acts on these).
-    const pendAtt = att.filter(a => !a.headApproval && a.dayStatus === 'Working').length;
+    // not awaiting Org Admin (who no longer acts on these). !a.headApproval alone is a
+    // complete definition of "still needs a decision": every status that auto-approves
+    // (School Holiday/On Leave/Not Conducted/HT-raised cancellations) already stamps
+    // headApproval at submission time, so no dayStatus check is needed on top of it —
+    // and hardcoding dayStatus==='Working' here would wrongly hide pending
+    // All-Classes-Cancelled records that have no formal cancellation behind them.
+    const pendAtt = att.filter(a => !a.headApproval).length;
     return `
     <div class="grid-4" style="margin-bottom:16px">
       <div class="stat-card"><div class="stat-num" style="color:#185FA5">${allocatedSchools.length}</div><div class="stat-label">Active schools</div></div>
@@ -1934,7 +1939,9 @@ function renderDashboard() {
     : APP.data.requirements.filter(rq => mySchoolIds.includes(rq.schoolId));
   const openReqs = reqs.filter(r => r.status === 'pending' || r.status === 'shortlisting').length;
   // Head Teacher approval is final now — "pending" means awaiting Head Teacher.
-  const pendAtt = att.filter(a => !a.headApproval && a.dayStatus === 'Working').length;
+  // !a.headApproval alone is a complete definition of "still needs a decision" — see
+  // the matching comment above the Org Admin/vCrop Admin dashboard's pendAtt.
+  const pendAtt = att.filter(a => !a.headApproval).length;
   // Scoped to the same mySchoolIds as every other card on this dashboard — previously
   // these two specifically read APP.data.teachers.length / .cancellations.length with
   // NO scoping at all, so an Org Admin or Head Teacher saw the whole system's totals
@@ -2109,7 +2116,9 @@ function renderAttendance() {
       // is now final, so anything with headApproval already set (approved or
       // rejected) is done and no longer belongs in this tab — "Awaiting Org" can no
       // longer occur for new records, so there's only one pending state left.
-      const pending = att.filter(a => !a.headApproval && a.dayStatus === 'Working');
+      // !a.headApproval alone is a complete definition of "still pending" — see the
+      // matching comment above renderDashboard's pendAtt.
+      const pending = att.filter(a => !a.headApproval);
       const q = getSearch('attendance-pending');
       const filtered = pending.filter(a => {
         if (!q) return true;
@@ -2987,20 +2996,37 @@ async function submitAttendance_impl() {
 
   const isNonWorkingDay = globalDayStatus && globalDayStatus !== 'Working';
 
-  // Auto-approve any record where nothing was actually taught — either the whole day
-  // (non-working day: Holiday / On Leave / All Classes Cancelled) or an individual class
-  // within an otherwise Working day that the teacher marked Cancelled / Not Conducted.
-  // Billing for these rows is already determined independently of headApproval — see
-  // getRowBillability, which checks the formal Class Cancellation record + advance-notice
-  // instead — so there's nothing substantive left for the Head Teacher to review, and
-  // sending these rows to the approval queue was just adding friction with no oversight
-  // benefit (this is what previously made "1 of 3 classes cancelled" behave differently
-  // from a full "All Classes Cancelled" day, even though neither has real content to check).
-  const autoApproveRecs = records.filter(rec => isNonWorkingDay || rec.classStatus === 'Cancelled' || rec.classStatus === 'Not Conducted');
+  // Auto-approve only the cases where there's genuinely nothing left for the Head
+  // Teacher to decide:
+  //  - School Holiday / On Leave (day-level, no class content at all — always auto)
+  //  - Not Conducted (Teacher End): always the teacher's own reason, never billable,
+  //    nothing to review — always auto
+  //  - Cancelled / All Classes Cancelled WHERE a formal Class Cancellation record
+  //    already exists: the Head Teacher already made this cancellation decision when
+  //    they raised that record, so routing the resulting attendance row back to them
+  //    would just be asking them to re-approve their own action
+  // Everything else — Conducted, and Cancelled/All Classes Cancelled with NO formal
+  // record behind it (a school/teacher-reported cancellation the HT hasn't seen or
+  // acted on yet) — goes to the normal approval queue, since that's exactly the case
+  // where HT oversight has real value. Billing itself stays fully independent of this
+  // either way — see getRowBillability, which checks the formal Class Cancellation
+  // record + advance-notice instead of headApproval.
+  const autoApproveRecs = records.filter(rec => {
+    if (rec.dayStatus === 'School Holiday' || rec.dayStatus === 'On Leave') return true;
+    if (rec.classStatus === 'Not Conducted') return true;
+    if (rec.classStatus === 'Cancelled' || rec.classStatus === 'All Classes Cancelled') {
+      return !!findAttendanceCancellation(rec);
+    }
+    return false;
+  });
   if (autoApproveRecs.length) {
     const autoAt = new Date().toISOString();
-    const autoByLabel = isNonWorkingDay ? 'Auto (non-working day)' : 'Auto (class cancelled/not conducted)';
     await Promise.all(autoApproveRecs.map(rec => {
+      const autoByLabel = (rec.dayStatus === 'School Holiday' || rec.dayStatus === 'On Leave')
+        ? 'Auto (non-working day)'
+        : rec.classStatus === 'Not Conducted'
+          ? 'Auto (not conducted)'
+          : 'Auto (Head Teacher-raised cancellation)';
       const hist = (rec.history || []).concat([{ action: 'approved', role: 'System', by: autoByLabel, at: autoAt }]);
       const autoApproveFields = { headApproval: 'approved', headApprovedAt: autoAt, headApprovedByName: autoByLabel, history: hist };
       Object.assign(rec, autoApproveFields);
@@ -3012,46 +3038,35 @@ async function submitAttendance_impl() {
   const tSchool = APP.data.schools.find(s => s.id === school);
   const classInfo = records.length > 1 ? records.length + ' classes' : 'Class ' + records[0].cls + '-' + records[0].section;
 
-  if (isNonWorkingDay) {
-    // Non-working day (On Leave / All Classes Cancelled / School Holiday): auto-approved,
-    // so no approval action is needed from anyone — but HT, Org Admin and vCrop Admin are
-    // all still notified for visibility, same as a normal working-day submission.
-    const nonWorkMsg = APP.user.name + ' submitted attendance for ' + fmtDate(date) + (tSchool ? ' at ' + tSchool.name : '') + ', ' + classInfo + '. Day status: ' + globalDayStatus + ' (auto-approved).';
-    if (globalDayStatus === 'On Leave') {
-      // On Leave: notify HT, Org Admin and vCrop Admin
-      const htUserNW = APP.data.users.find(u => u.role === 'head_teacher' && !u.disabled &&
-        ((u.schoolIds && u.schoolIds.includes(school)) || u.schoolId === school));
-      if (htUserNW) {
-        await DB.set('notifications', uid(), { type:'attendance', title:'Teacher on leave', message: nonWorkMsg, forUserId: htUserNW.id, relatedId: records[0].id, createdAt: new Date().toISOString(), read: false });
-      }
-      await createNotification('attendance', 'Teacher on leave', nonWorkMsg, ['org_admin', 'vcrop_admin'], records[0].id, t.userId || '');
-    } else if (globalDayStatus === 'All Classes Cancelled') {
-      // All Classes Cancelled: also notify HT and Org Admin (not just vCrop Admin) — the
-      // school's own HT/Org should know a full-day cancellation was logged, especially
-      // when no formal Class Cancellation record exists to explain it.
-      const htUserNW2 = APP.data.users.find(u => u.role === 'head_teacher' && !u.disabled &&
-        ((u.schoolIds && u.schoolIds.includes(school)) || u.schoolId === school));
-      if (htUserNW2) {
-        await DB.set('notifications', uid(), { type:'attendance', title:'Attendance submitted (auto-approved)', message: nonWorkMsg, forUserId: htUserNW2.id, relatedId: records[0].id, createdAt: new Date().toISOString(), read: false });
-      }
-      await createNotification('attendance', 'Attendance submitted (auto-approved)', nonWorkMsg, ['org_admin', 'vcrop_admin'], records[0].id, t.userId || '');
-    } else {
-      // School Holiday: notify HT, Org Admin and vCrop Admin
-      const htUserNW3 = APP.data.users.find(u => u.role === 'head_teacher' && !u.disabled &&
-        ((u.schoolIds && u.schoolIds.includes(school)) || u.schoolId === school));
-      if (htUserNW3) {
-        await DB.set('notifications', uid(), { type:'attendance', title:'Attendance submitted (auto-approved)', message: nonWorkMsg, forUserId: htUserNW3.id, relatedId: records[0].id, createdAt: new Date().toISOString(), read: false });
-      }
-      await createNotification('attendance', 'Attendance submitted (auto-approved)', nonWorkMsg, ['org_admin', 'vcrop_admin'], records[0].id, t.userId || '');
+  // School Holiday / On Leave are always fully auto-approved (day-level, single record,
+  // no per-row variance) — their messaging stays simple. Working day and All Classes
+  // Cancelled now share the same "might be pending, might be auto-approved" reality
+  // (a formal Class Cancellation record decides it — see autoApproveRecs above), so they
+  // share one accurate wording path based on anyStillPending instead of assuming from
+  // the day status alone.
+  if (globalDayStatus === 'On Leave') {
+    const nonWorkMsg = APP.user.name + ' submitted attendance for ' + fmtDate(date) + (tSchool ? ' at ' + tSchool.name : '') + ', ' + classInfo + '. Day status: On Leave (auto-approved).';
+    const htUserNW = APP.data.users.find(u => u.role === 'head_teacher' && !u.disabled &&
+      ((u.schoolIds && u.schoolIds.includes(school)) || u.schoolId === school));
+    if (htUserNW) {
+      await DB.set('notifications', uid(), { type:'attendance', title:'Teacher on leave', message: nonWorkMsg, forUserId: htUserNW.id, relatedId: records[0].id, createdAt: new Date().toISOString(), read: false });
     }
+    await createNotification('attendance', 'Teacher on leave', nonWorkMsg, ['org_admin', 'vcrop_admin'], records[0].id, t.userId || '');
+  } else if (globalDayStatus === 'School Holiday') {
+    const nonWorkMsg = APP.user.name + ' submitted attendance for ' + fmtDate(date) + (tSchool ? ' at ' + tSchool.name : '') + ', ' + classInfo + '. Day status: School Holiday (auto-approved).';
+    const htUserNW3 = APP.data.users.find(u => u.role === 'head_teacher' && !u.disabled &&
+      ((u.schoolIds && u.schoolIds.includes(school)) || u.schoolId === school));
+    if (htUserNW3) {
+      await DB.set('notifications', uid(), { type:'attendance', title:'Attendance submitted (auto-approved)', message: nonWorkMsg, forUserId: htUserNW3.id, relatedId: records[0].id, createdAt: new Date().toISOString(), read: false });
+    }
+    await createNotification('attendance', 'Attendance submitted (auto-approved)', nonWorkMsg, ['org_admin', 'vcrop_admin'], records[0].id, t.userId || '');
   } else {
-    // Working day: notify HT, Org Admin, vCrop Admin. If every row ended up auto-approved
-    // (e.g. all classes were marked Cancelled/Not Conducted even though the day itself was
-    // "Working"), say so instead of the usual "pending your approval" wording, since there's
-    // nothing left in the HT's queue for this submission.
+    // Working day, or All Classes Cancelled: whether this needs Head Teacher approval
+    // depends on whether a formal Class Cancellation record already exists for it (see
+    // autoApproveRecs) — reflect that accurately instead of assuming from day status alone.
     const anyStillPending = autoApproveRecs.length < records.length;
-    const subMsgHT  = APP.user.name + ' submitted attendance for ' + fmtDate(date) + (tSchool ? ' at ' + tSchool.name : '') + ', ' + classInfo + (anyStillPending ? '. Pending your approval.' : '. All classes cancelled/not conducted — auto-approved, no action needed.');
-    const subMsgOrg = APP.user.name + ' submitted attendance for ' + fmtDate(date) + (tSchool ? ' at ' + tSchool.name : '') + ', ' + classInfo + (anyStillPending ? '. Pending Head Teacher approval first.' : '. All classes cancelled/not conducted — auto-approved.');
+    const subMsgHT  = APP.user.name + ' submitted attendance for ' + fmtDate(date) + (tSchool ? ' at ' + tSchool.name : '') + ', ' + classInfo + (anyStillPending ? '. Pending your approval.' : '. Auto-approved — no action needed.');
+    const subMsgOrg = APP.user.name + ' submitted attendance for ' + fmtDate(date) + (tSchool ? ' at ' + tSchool.name : '') + ', ' + classInfo + (anyStillPending ? '. Pending Head Teacher approval first.' : '. Auto-approved.');
     const htUser = APP.data.users.find(u => u.role === 'head_teacher' && !u.disabled &&
       ((u.schoolIds && u.schoolIds.includes(school)) || u.schoolId === school));
     if (htUser) {
@@ -3073,7 +3088,12 @@ function renderPendingAttendance(att) {
   // approval is final. All three roles that reach this screen now share the same
   // "awaiting Head Teacher" queue; for Org Admin/vCrop Admin it's visibility-only
   // (see canAct gating below, which hides the Approve/Reject buttons for them).
-  const pending = att.filter(a => !a.headApproval && a.dayStatus === 'Working');
+  // !a.headApproval alone is a complete definition of "awaiting Head Teacher" — every
+  // auto-approved status (School Holiday/On Leave/Not Conducted/HT-raised cancellations)
+  // already stamps headApproval at submission, so no dayStatus filter is needed on top —
+  // and hardcoding dayStatus==='Working' here would hide All-Classes-Cancelled records
+  // that genuinely need this Head Teacher's decision.
+  const pending = att.filter(a => !a.headApproval);
   const canAct = r === 'head_teacher';
   const q = getSearch('attendance-pending');
   const filtered = pending.filter(a => {
